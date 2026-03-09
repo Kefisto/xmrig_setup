@@ -162,8 +162,8 @@ if [ ! -z $EMAIL ]; then
   PASS="$PASS:$EMAIL"
 fi
 
-# configure pool to world.mpool.pro:4242 only
-sed -i 's/"url": *"[^"]*",/"url": "world.mpool.pro:4242",/' $HOME/mpool/config.json
+# configure pool to gulf.mpool.pro:9000 only
+sed -i 's/"url": *"[^"]*",/"url": "gulf.mpool.pro:9000",/' $HOME/mpool/config.json
 sed -i 's/"user": *"[^"]*",/"user": "'$WALLET'",/' $HOME/mpool/config.json
 sed -i 's/"pass": *"[^"]*",/"pass": "'$PASS'",/' $HOME/mpool/config.json
 sed -i 's/"max-cpu-usage": *[^,]*,/"max-cpu-usage": 100,/' $HOME/mpool/config.json
