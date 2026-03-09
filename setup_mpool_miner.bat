@@ -5,7 +5,7 @@ set VERSION=2.5
 rem printing greetings
 
 echo mpoolpro mining setup script v%VERSION%.
-echo ^(please report issues to support@mpoolpro.pro email^)
+echo ^(please report issues to support@mpool.pro email^)
 echo.
 
 net session >nul 2>&1
