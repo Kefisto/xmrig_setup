@@ -14,13 +14,12 @@ fi
 
 # command line arguments
 WALLET=$1
-EMAIL=$2 # this one is optional
 
 # checking prerequisites
 
 if [ -z $WALLET ]; then
   echo "Script usage:"
-  echo "> setup_mpool_miner.sh <wallet address> [<your email address>]"
+  echo "> setup_mpool_miner.sh <wallet address>"
   echo "ERROR: Please specify your wallet address"
   exit 1
 fi
@@ -75,9 +74,6 @@ fi
 echo "I will download, setup and run in background mpool CPU miner."
 echo "If needed, miner in foreground can be started by \$HOME/mpool/miner.sh script."
 echo "Mining will happen to \$WALLET wallet."
-if [ ! -z $EMAIL ]; then
-  echo "(and $EMAIL email as password to modify wallet options later at https://mpool.pro site)"
-fi
 echo
 
 if ! sudo -n true 2>/dev/null; then
@@ -168,9 +164,6 @@ if [ "$PASS" == "localhost" ]; then
 fi
 if [ -z $PASS ]; then
   PASS=na
-fi
-if [ ! -z $EMAIL ]; then
-  PASS="$PASS:$EMAIL"
 fi
 
 sed -i 's/"url": *"[^"]*",/"url": "gulf.mpool.pro:'$PORT'",/' $HOME/mpool/config.json

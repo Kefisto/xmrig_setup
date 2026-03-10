@@ -13,14 +13,12 @@ if %errorLevel% == 0 (set ADMIN=1) else (set ADMIN=0)
 
 rem command line arguments
 set WALLET=%1
-rem this one is optional
-set EMAIL=%2
 
 rem checking prerequisites
 
 if [%WALLET%] == [] (
   echo Script usage:
-  echo ^> setup_mpool_miner.bat ^<wallet address^> [^<your email address^>]
+  echo ^> setup_mpool_miner.bat ^<wallet address^>
   echo ERROR: Please specify your wallet address
   exit /b 1
 )
@@ -98,11 +96,6 @@ set "LOGFILE=%USERPROFILE%\mpool\xmrig.log"
 echo I will download, setup and run in background Monero CPU miner with logs in %LOGFILE% file.
 echo If needed, miner in foreground can be started by %USERPROFILE%\mpool\miner.bat script.
 echo Mining will happen to %WALLET% wallet.
-
-if not [%EMAIL%] == [] (
-  echo ^(and %EMAIL% email as password to modify wallet options later at https://mpool.pro site^)
-)
-
 echo.
 
 if %ADMIN% == 0 (
@@ -220,9 +213,6 @@ echo [*] Miner "%USERPROFILE%\mpool\xmrig.exe" is OK
 for /f "tokens=*" %%a in ('powershell -Command "hostname | %%{$_ -replace '[^a-zA-Z0-9]+', '_'}"') do set PASS=%%a
 if [%PASS%] == [] (
   set PASS=na
-)
-if not [%EMAIL%] == [] (
-  set "PASS=%PASS%:%EMAIL%"
 )
 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"gulf.mpool.pro:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
