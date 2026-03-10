@@ -143,20 +143,9 @@ if [%EXP_MONERO_HASHRATE%] == [] (
   exit 
 )
 
-if %EXP_MONERO_HASHRATE% gtr 208400  ( set PORT=18192 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 102400  ( set PORT=14096 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 51200  ( set PORT=12048 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 25600  ( set PORT=11024 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 12800  ( set PORT=10512 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 6400  ( set PORT=10256 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 3200  ( set PORT=10128 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 1600  ( set PORT=10064 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 800   ( set PORT=10032 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 400   ( set PORT=10016 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 200   ( set PORT=10008 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr 100   ( set PORT=10004 & goto PORT_OK )
-if %EXP_MONERO_HASHRATE% gtr  50   ( set PORT=10002 & goto PORT_OK )
-set PORT=10001
+if %EXP_MONERO_HASHRATE% gtr 10000 ( set PORT=7777 & goto PORT_OK )
+if %EXP_MONERO_HASHRATE% gtr 2000  ( set PORT=5555 & goto PORT_OK )
+set PORT=3333
 
 :PORT_OK
 
@@ -294,7 +283,7 @@ if not [%EMAIL%] == [] (
   set "PASS=%PASS%:%EMAIL%"
 )
 
-powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"gulf.mpool.pro:9000:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
+powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"gulf.mpool.pro:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"user\": *\".*\",', '\"user\": \"%WALLET%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"pass\": *\".*\",', '\"pass\": \"%PASS%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"max-cpu-usage\": *\d*,', '\"max-cpu-usage\": 100,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 

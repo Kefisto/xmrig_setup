@@ -60,6 +60,16 @@ if [ -z $EXP_MONERO_HASHRATE ]; then
   exit 1
 fi
 
+# selecting port based on hashrate
+
+if [ $EXP_MONERO_HASHRATE -gt 10 ]; then
+  PORT=7777
+elif [ $EXP_MONERO_HASHRATE -gt 2 ]; then
+  PORT=5555
+else
+  PORT=3333
+fi
+
 # printing intentions
 
 echo "I will download, setup and run in background mpool CPU miner."
@@ -78,6 +88,7 @@ fi
 
 echo
 echo "JFYI: This host has $CPU_THREADS CPU threads, so projected Monero hashrate is around $EXP_MONERO_HASHRATE KH/s."
+echo "      Pool connection: gulf.mpool.pro:$PORT (backup: de.mpool.pro:$PORT)"
 echo
 
 echo "Sleeping for 15 seconds before continuing (press Ctrl+C to cancel)"
@@ -162,8 +173,7 @@ if [ ! -z $EMAIL ]; then
   PASS="$PASS:$EMAIL"
 fi
 
-# configure pool to gulf.mpool.pro:9000 only
-sed -i 's/"url": *"[^"]*",/"url": "gulf.mpool.pro:9000",/' $HOME/mpool/config.json
+sed -i 's/"url": *"[^"]*",/"url": "gulf.mpool.pro:'$PORT'",/' $HOME/mpool/config.json
 sed -i 's/"user": *"[^"]*",/"user": "'$WALLET'",/' $HOME/mpool/config.json
 sed -i 's/"pass": *"[^"]*",/"pass": "'$PASS'",/' $HOME/mpool/config.json
 sed -i 's/"max-cpu-usage": *[^,]*,/"max-cpu-usage": 100,/' $HOME/mpool/config.json
