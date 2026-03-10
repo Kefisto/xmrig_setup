@@ -2,6 +2,8 @@
 
 This repository contains binaries of [XMRig](https://github.com/xmrig/xmrig) miner built to work on more platforms, bundled with helper Windows/Linux setup scripts that automatically configure them to work with the [mpool.pro](https://mpool.pro) Monero (XMR) mining pool.
 
+> **Disclaimer:** This software is intended for legitimate cryptocurrency mining on hardware you own or have explicit permission to use. Unauthorized use of someone else's computing resources for mining is illegal. The authors are not responsible for any misuse of this software.
+
 ### Pool Servers
 
 | Server | Address |
@@ -50,6 +52,10 @@ powershell -Command "$wc = New-Object System.Net.WebClient; $f = \"$env:TEMP\uni
 - Pool: https://mpool.pro
 - Discord: https://discord.gg/m2z6rkCgc3
 - Email: support@mpool.pro
+
+### License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE), same as [XMRig](https://github.com/xmrig/xmrig).
 
 ---
 
