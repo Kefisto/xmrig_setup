@@ -23,12 +23,12 @@ This repository contains binaries of [XMRig](https://github.com/xmrig/xmrig) min
 
 **Windows:**
 ```
-setup_mpool_miner.bat <wallet_address> [<email>]
+setup_mpool_miner.bat <wallet_address>
 ```
 
 **Linux:**
 ```
-bash setup_mpool_miner.sh <wallet_address> [<email>]
+bash setup_mpool_miner.sh <wallet_address>
 ```
 
 ### Uninstall
