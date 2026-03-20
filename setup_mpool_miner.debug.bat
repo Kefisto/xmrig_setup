@@ -155,8 +155,10 @@ for /f "tokens=*" %%a in ('powershell -Command "try { [math]::Round((Test-Connec
 
 if %GULF_PING% leq %DE_PING% (
   set POOL_HOST=gulf.mpool.pro
+  set BACKUP_HOST=de.mpool.pro
 ) else (
   set POOL_HOST=de.mpool.pro
+  set BACKUP_HOST=gulf.mpool.pro
 )
 
 if %GULF_PING% == 9999 ( set "GULF_DISP=unreachable" ) else ( set "GULF_DISP=%GULF_PING%ms" )
@@ -295,6 +297,9 @@ powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -repla
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"max-cpu-usage\": *\d*,', '\"max-cpu-usage\": 100,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 set LOGFILE2=%LOGFILE:\=\\%
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"log-file\": *null,', '\"log-file\": \"%LOGFILE2%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
+
+echo [*] Adding backup pool %BACKUP_HOST%:%PORT% for failover
+powershell -Command "$j = Get-Content '%USERPROFILE%\mpool\config.json' -Raw | ConvertFrom-Json; if ($j.pools.Count -gt 0) { $b = $j.pools[0] | ConvertTo-Json -Depth 5 | ConvertFrom-Json; $b.url = '%BACKUP_HOST%:%PORT%'; $j.pools = @($j.pools[0], $b) }; $j | ConvertTo-Json -Depth 10 | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'"
 
 copy /Y "%USERPROFILE%\mpool\config.json" "%USERPROFILE%\mpool\config_background.json" >NUL
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config_background.json' | %%{$_ -replace '\"background\": *false,', '\"background\": true,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config_background.json'" 

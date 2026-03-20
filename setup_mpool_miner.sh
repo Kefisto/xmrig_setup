@@ -77,18 +77,23 @@ DE_PING=$(ping -c 2 -W 2 de.mpool.pro 2>/dev/null | tail -1 | awk -F '/' '{print
 
 if [ -z "$GULF_PING" ] && [ -z "$DE_PING" ]; then
   POOL_HOST="gulf.mpool.pro"
+  BACKUP_HOST="de.mpool.pro"
   echo "  WARNING: Can't ping either server, defaulting to gulf.mpool.pro"
 elif [ -z "$GULF_PING" ]; then
   POOL_HOST="de.mpool.pro"
+  BACKUP_HOST="gulf.mpool.pro"
   echo "  gulf.mpool.pro: unreachable | de.mpool.pro: ${DE_PING}ms -> using de.mpool.pro"
 elif [ -z "$DE_PING" ]; then
   POOL_HOST="gulf.mpool.pro"
+  BACKUP_HOST="de.mpool.pro"
   echo "  gulf.mpool.pro: ${GULF_PING}ms | de.mpool.pro: unreachable -> using gulf.mpool.pro"
 elif [ "$GULF_PING" -le "$DE_PING" ]; then
   POOL_HOST="gulf.mpool.pro"
+  BACKUP_HOST="de.mpool.pro"
   echo "  gulf.mpool.pro: ${GULF_PING}ms | de.mpool.pro: ${DE_PING}ms -> using gulf.mpool.pro"
 else
   POOL_HOST="de.mpool.pro"
+  BACKUP_HOST="gulf.mpool.pro"
   echo "  gulf.mpool.pro: ${GULF_PING}ms | de.mpool.pro: ${DE_PING}ms -> using de.mpool.pro"
 fi
 
@@ -196,6 +201,38 @@ sed -i 's/"pass": *"[^"]*",/"pass": "'$PASS'",/' $HOME/mpool/config.json
 sed -i 's/"max-cpu-usage": *[^,]*,/"max-cpu-usage": 100,/' $HOME/mpool/config.json
 sed -i 's#"log-file": *null,#"log-file": "'$HOME/mpool/xmrig.log'",#' $HOME/mpool/config.json
 sed -i 's/"syslog": *[^,]*,/"syslog": true,/' $HOME/mpool/config.json
+
+echo "[*] Adding backup pool $BACKUP_HOST:$PORT for failover"
+if type python3 >/dev/null 2>&1; then
+  python3 -c "
+import json, sys
+try:
+    with open(sys.argv[1]) as f: cfg = json.load(f)
+    if cfg.get('pools') and len(cfg['pools']) > 0:
+        import copy
+        backup = copy.deepcopy(cfg['pools'][0])
+        backup['url'] = sys.argv[2]
+        cfg['pools'].append(backup)
+        with open(sys.argv[1], 'w') as f: json.dump(cfg, f, indent=4)
+except Exception as e:
+    print('WARNING: Could not add backup pool: ' + str(e))
+" $HOME/mpool/config.json "$BACKUP_HOST:$PORT"
+elif type python >/dev/null 2>&1; then
+  python -c "
+import json, sys, copy
+try:
+    with open(sys.argv[1]) as f: cfg = json.load(f)
+    if cfg.get('pools') and len(cfg['pools']) > 0:
+        backup = copy.deepcopy(cfg['pools'][0])
+        backup['url'] = sys.argv[2]
+        cfg['pools'].append(backup)
+        with open(sys.argv[1], 'w') as f: json.dump(cfg, f, indent=4)
+except Exception as e:
+    print('WARNING: Could not add backup pool: ' + str(e))
+" $HOME/mpool/config.json "$BACKUP_HOST:$PORT"
+else
+  echo "WARNING: python not found, skipping backup pool (failover won't work)"
+fi
 
 cp $HOME/mpool/config.json $HOME/mpool/config_background.json
 sed -i 's/"background": *false,/"background": true,/' $HOME/mpool/config_background.json
