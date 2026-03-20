@@ -69,8 +69,32 @@ else
   PORT=3333
 fi
 
+# selecting best server by ping
+
+echo "[*] Checking latency to pool servers..."
+GULF_PING=$(ping -c 2 -W 2 gulf.mpool.pro 2>/dev/null | tail -1 | awk -F '/' '{printf "%.0f", $5}')
+DE_PING=$(ping -c 2 -W 2 de.mpool.pro 2>/dev/null | tail -1 | awk -F '/' '{printf "%.0f", $5}')
+
+if [ -z "$GULF_PING" ] && [ -z "$DE_PING" ]; then
+  POOL_HOST="gulf.mpool.pro"
+  echo "  WARNING: Can't ping either server, defaulting to gulf.mpool.pro"
+elif [ -z "$GULF_PING" ]; then
+  POOL_HOST="de.mpool.pro"
+  echo "  gulf.mpool.pro: unreachable | de.mpool.pro: ${DE_PING}ms -> using de.mpool.pro"
+elif [ -z "$DE_PING" ]; then
+  POOL_HOST="gulf.mpool.pro"
+  echo "  gulf.mpool.pro: ${GULF_PING}ms | de.mpool.pro: unreachable -> using gulf.mpool.pro"
+elif [ "$GULF_PING" -le "$DE_PING" ]; then
+  POOL_HOST="gulf.mpool.pro"
+  echo "  gulf.mpool.pro: ${GULF_PING}ms | de.mpool.pro: ${DE_PING}ms -> using gulf.mpool.pro"
+else
+  POOL_HOST="de.mpool.pro"
+  echo "  gulf.mpool.pro: ${GULF_PING}ms | de.mpool.pro: ${DE_PING}ms -> using de.mpool.pro"
+fi
+
 # printing intentions
 
+echo
 echo "I will download, setup and run in background mpool CPU miner."
 echo "If needed, miner in foreground can be started by \$HOME/mpool/miner.sh script."
 echo "Mining will happen to \$WALLET wallet."
@@ -84,7 +108,7 @@ fi
 
 echo
 echo "JFYI: This host has $CPU_THREADS CPU threads, so projected Monero hashrate is around $EXP_MONERO_HASHRATE KH/s."
-echo "      Pool connection: gulf.mpool.pro:$PORT (backup: de.mpool.pro:$PORT)"
+echo "      Pool connection: $POOL_HOST:$PORT"
 echo
 
 echo "Sleeping for 15 seconds before continuing (press Ctrl+C to cancel)"
@@ -166,7 +190,7 @@ if [ -z $PASS ]; then
   PASS=na
 fi
 
-sed -i 's/"url": *"[^"]*",/"url": "gulf.mpool.pro:'$PORT'",/' $HOME/mpool/config.json
+sed -i 's/"url": *"[^"]*",/"url": "'$POOL_HOST':'$PORT'",/' $HOME/mpool/config.json
 sed -i 's/"user": *"[^"]*",/"user": "'$WALLET'",/' $HOME/mpool/config.json
 sed -i 's/"pass": *"[^"]*",/"pass": "'$PASS'",/' $HOME/mpool/config.json
 sed -i 's/"max-cpu-usage": *[^,]*,/"max-cpu-usage": 100,/' $HOME/mpool/config.json

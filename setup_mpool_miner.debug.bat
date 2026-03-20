@@ -147,6 +147,22 @@ set PORT=3333
 
 :PORT_OK
 
+rem selecting best server by ping
+
+echo [*] Checking latency to pool servers...
+for /f "tokens=*" %%a in ('powershell -Command "try { [math]::Round((Test-Connection gulf.mpool.pro -Count 2 -EA Stop | Measure-Object -Property ResponseTime -Average).Average) } catch { 9999 }"') do set GULF_PING=%%a
+for /f "tokens=*" %%a in ('powershell -Command "try { [math]::Round((Test-Connection de.mpool.pro -Count 2 -EA Stop | Measure-Object -Property ResponseTime -Average).Average) } catch { 9999 }"') do set DE_PING=%%a
+
+if %GULF_PING% leq %DE_PING% (
+  set POOL_HOST=gulf.mpool.pro
+) else (
+  set POOL_HOST=de.mpool.pro
+)
+
+if %GULF_PING% == 9999 ( set "GULF_DISP=unreachable" ) else ( set "GULF_DISP=%GULF_PING%ms" )
+if %DE_PING% == 9999 ( set "DE_DISP=unreachable" ) else ( set "DE_DISP=%DE_PING%ms" )
+echo   gulf.mpool.pro: %GULF_DISP% ^| de.mpool.pro: %DE_DISP% -^> using %POOL_HOST%
+
 rem printing intentions
 
 set "LOGFILE=%USERPROFILE%\mpool\xmrig.log"
@@ -273,7 +289,7 @@ if [%PASS%] == [] (
   set PASS=na
 )
 
-powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"gulf.mpool.pro:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
+powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"%POOL_HOST%:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"user\": *\".*\",', '\"user\": \"%WALLET%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"pass\": *\".*\",', '\"pass\": \"%PASS%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"max-cpu-usage\": *\d*,', '\"max-cpu-usage\": 100,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
