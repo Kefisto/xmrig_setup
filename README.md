@@ -1,6 +1,6 @@
 ## mpool.pro XMRig Setup
 
-This repository contains binaries of [XMRig](https://github.com/xmrig/xmrig) miner built to work on more platforms, bundled with helper Windows/Linux setup scripts that automatically configure them to work with the [mpool.pro](https://mpool.pro) Monero (XMR) mining pool.
+Setup scripts for Windows and Linux that automatically download the latest [XMRig](https://github.com/xmrig/xmrig) miner from official releases, configure it for the [mpool.pro](https://mpool.pro) Monero (XMR) pool (algorithm: **rx/0 only**, no algo-switching), and set up auto-start.
 
 > **Disclaimer:** This software is intended for legitimate cryptocurrency mining on hardware you own or have explicit permission to use. Unauthorized use of someone else's computing resources for mining is illegal. The authors are not responsible for any misuse of this software.
 
@@ -63,7 +63,7 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE), s
 
 ### Что это?
 
-Автоматический установщик майнера [XMRig](https://github.com/xmrig/xmrig) для пула [mpool.pro](https://mpool.pro). Скрипт сам скачает майнер, настроит конфиг под ваш кошелёк и запустит майнинг Monero (XMR) в фоне.
+Автоматический установщик майнера [XMRig](https://github.com/xmrig/xmrig) для пула [mpool.pro](https://mpool.pro). Скрипт скачает последнюю версию XMRig с GitHub, настроит конфиг под ваш кошелёк и запустит майнинг **только Monero (XMR)** на алгоритме **rx/0** (без algo-switching).
 
 ### Что нужно перед началом
 
@@ -90,14 +90,14 @@ powershell -Command "$wc = New-Object System.Net.WebClient; $f = \"$env:TEMP\set
 
 ### Что произойдёт после запуска
 
-1. Скрипт скачает XMRig (или возьмёт последнюю версию с GitHub, если кастомная не работает)
+1. Скачает последнюю версию XMRig с [официального репозитория](https://github.com/xmrig/xmrig/releases/latest)
 2. Пропингует `gulf.mpool.pro` и `de.mpool.pro` и выберет сервер с наименьшей задержкой
 3. Автоматически выберет порт по мощности CPU (3333 / 5555 / 7777)
-4. Настроит подключение к выбранному серверу + резервный пул для автопереключения при сбое
-5. Запустит майнер в фоновом режиме
+4. Настроит `config.json`: алгоритм **rx/0**, монета **Monero**, резервный пул для автопереключения при сбое
+5. **На Windows:** предложит выбор — запуск в видимом окне, в фоне, или не запускать сейчас
 6. На Windows с правами администратора — создаст системную службу `mpool_miner` (работает после перезагрузки)
 7. На Windows без прав администратора — добавит майнер в автозагрузку
-8. На Linux с sudo — создаст systemd-сервис `mpool_miner`
+8. **На Linux** с sudo — создаст systemd-сервис `mpool_miner` и запустит в фоне
 
 ### Серверы пула
 
