@@ -216,7 +216,7 @@ powershell -Command "$j = Get-Content '%USERPROFILE%\mpool\config.json' -Raw | C
 copy /Y "%USERPROFILE%\mpool\config.json" "%USERPROFILE%\mpool\config_background.json" >NUL
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config_background.json' | %%{$_ -replace '\"background\": *false,', '\"background\": true,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config_background.json'" 
 
-rem preparing script
+rem preparing miner.bat launcher script
 (
 echo @echo off
 echo tasklist /fi "imagename eq xmrig.exe" ^| find ":" ^>NUL
@@ -229,8 +229,27 @@ echo echo Run "taskkill /IM xmrig.exe" if you want to remove background miner fi
 echo :EXIT
 ) > "%USERPROFILE%\mpool\miner.bat"
 
-rem preparing script background work and work under reboot
+echo.
+echo ============================================================
+echo   Setup complete! How do you want to run the miner?
+echo ============================================================
+echo   1 - Run in foreground (visible window, stop with Ctrl+C)
+echo   2 - Run in background (hidden, auto-start on login)
+echo   3 - Don't start now (manual start later)
+echo ============================================================
+choice /c 123 /n /m "Your choice [1/2/3]: "
+if errorlevel 3 goto MANUAL_START
+if errorlevel 2 goto BACKGROUND_START
+goto FOREGROUND_START
 
+:FOREGROUND_START
+echo.
+echo [*] Starting miner in foreground (press Ctrl+C to stop)
+echo.
+"%USERPROFILE%\mpool\xmrig.exe" --config="%USERPROFILE%\mpool\config.json"
+goto OK
+
+:BACKGROUND_START
 if %ADMIN% == 1 goto ADMIN_MINER_SETUP
 
 if exist "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" (
@@ -253,7 +272,15 @@ echo "%USERPROFILE%\mpool\miner.bat" --config="%USERPROFILE%\mpool\config_backgr
 ) > "%STARTUP_DIR%\mpool_miner.bat"
 
 echo [*] Running miner in the background
-call "%STARTUP_DIR%\mpool_miner.bat"
+powershell -NoProfile -Command "Start-Process -FilePath '%USERPROFILE%\mpool\xmrig.exe' -ArgumentList '--config=%USERPROFILE%\mpool\config_background.json' -WindowStyle Hidden"
+echo [*] Miner started in background. Check logs: %USERPROFILE%\mpool\xmrig.log
+goto OK
+
+:MANUAL_START
+echo.
+echo [*] Miner is installed but NOT started.
+echo     To run in foreground: "%USERPROFILE%\mpool\xmrig.exe" --config="%USERPROFILE%\mpool\config.json"
+echo     To run in background: "%USERPROFILE%\mpool\miner.bat" --config="%USERPROFILE%\mpool\config_background.json"
 goto OK
 
 :ADMIN_MINER_SETUP
