@@ -234,6 +234,9 @@ if errorlevel 1 (
 )
 del "%USERPROFILE%\xmrig.zip"
 
+rem move files from subdirectory (e.g. xmrig-6.25.0\) to mpool root
+powershell -NoProfile -Command "$sub = Get-ChildItem -Path '%USERPROFILE%\mpool' -Directory | Select-Object -First 1; if ($sub) { Get-ChildItem -Path $sub.FullName | Move-Item -Destination '%USERPROFILE%\mpool' -Force; Remove-Item $sub.FullName -Recurse -Force }"
+
 echo [*] Checking if "%USERPROFILE%\mpool\xmrig.exe" works fine ^(and not removed by antivirus software^)
 powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"donate-level\": *\d*,', '\"donate-level\": 1,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 "%USERPROFILE%\mpool\xmrig.exe" --help >NUL
