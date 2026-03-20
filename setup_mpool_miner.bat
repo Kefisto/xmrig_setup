@@ -142,7 +142,7 @@ rmdir /q /s "%USERPROFILE%\mpool" >NUL 2>NUL
 IF EXIST "%USERPROFILE%\mpool" GOTO REMOVE_DIR0
 
 echo [*] Looking for the latest version of XMRig
-powershell -NoProfile -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; $url = ((Invoke-RestMethod 'https://api.github.com/repos/xmrig/xmrig/releases/latest').assets | Where-Object { $_.name -like '*msvc-win64.zip' }).browser_download_url; Set-Content -Path '%TEMP%\xmrig_url.txt' -Value $url -NoNewline"
+powershell -NoProfile -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; $url = ((Invoke-RestMethod 'https://api.github.com/repos/xmrig/xmrig/releases/latest').assets | Where-Object { $_.name -like '*windows-x64.zip' }).browser_download_url; Set-Content -Path '%TEMP%\xmrig_url.txt' -Value $url -NoNewline"
 set /p MINER_LOCATION=<"%TEMP%\xmrig_url.txt"
 del "%TEMP%\xmrig_url.txt" 2>NUL
 if "%MINER_LOCATION%"=="" (
