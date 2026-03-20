@@ -198,6 +198,8 @@ fi
 sed -i 's/"url": *"[^"]*",/"url": "'$POOL_HOST':'$PORT'",/' $HOME/mpool/config.json
 sed -i 's/"user": *"[^"]*",/"user": "'$WALLET'",/' $HOME/mpool/config.json
 sed -i 's/"pass": *"[^"]*",/"pass": "'$PASS'",/' $HOME/mpool/config.json
+sed -i 's/"algo": *[^,]*,/"algo": "rx\/0",/' $HOME/mpool/config.json
+sed -i 's/"coin": *[^,]*,/"coin": "monero",/' $HOME/mpool/config.json
 sed -i 's/"max-cpu-usage": *[^,]*,/"max-cpu-usage": 100,/' $HOME/mpool/config.json
 sed -i 's#"log-file": *null,#"log-file": "'$HOME/mpool/xmrig.log'",#' $HOME/mpool/config.json
 sed -i 's/"syslog": *[^,]*,/"syslog": true,/' $HOME/mpool/config.json
