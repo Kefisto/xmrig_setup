@@ -133,12 +133,15 @@ echo "[*] Removing \$HOME/mpool directory"
 rm -rf $HOME/mpool
 
 echo "[*] Looking for the latest version of XMRig"
-LATEST_XMRIG_RELEASE=`curl -s https://github.com/xmrig/xmrig/releases/latest  | grep -o '".*"' | sed 's/"//g'`
-LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
+LATEST_XMRIG_LINUX_RELEASE=$(curl -sL https://api.github.com/repos/xmrig/xmrig/releases/latest | grep -o '"browser_download_url": *"[^"]*linux-static-x64.tar.gz"' | cut -d '"' -f 4)
+if [ -z "$LATEST_XMRIG_LINUX_RELEASE" ]; then
+  echo "ERROR: Can't determine latest XMRig release URL from GitHub API"
+  exit 1
+fi
 
-echo "[*] Downloading \$LATEST_XMRIG_LINUX_RELEASE to /tmp/xmrig.tar.gz"
-if ! curl -L --progress-bar $LATEST_XMRIG_LINUX_RELEASE -o /tmp/xmrig.tar.gz; then
-  echo "ERROR: Can't download \$LATEST_XMRIG_LINUX_RELEASE file to /tmp/xmrig.tar.gz"
+echo "[*] Downloading $LATEST_XMRIG_LINUX_RELEASE to /tmp/xmrig.tar.gz"
+if ! curl -L --progress-bar "$LATEST_XMRIG_LINUX_RELEASE" -o /tmp/xmrig.tar.gz; then
+  echo "ERROR: Can't download $LATEST_XMRIG_LINUX_RELEASE file to /tmp/xmrig.tar.gz"
   exit 1
 fi
 

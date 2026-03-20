@@ -200,8 +200,7 @@ rmdir /q /s "%USERPROFILE%\mpool" >NUL 2>NUL
 IF EXIST "%USERPROFILE%\mpool" GOTO REMOVE_DIR0
 
 echo [*] Looking for the latest version of XMRig
-for /f tokens^=2^ delims^=^" %%a IN ('powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; $wc = New-Object System.Net.WebClient; $str = $wc.DownloadString('https://github.com/xmrig/xmrig/releases/latest'); $str | findstr msvc-win64.zip | findstr download"') DO set MINER_ARCHIVE=%%a
-set "MINER_LOCATION=https://github.com%MINER_ARCHIVE%"
+for /f "delims=" %%a IN ('powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; ((Invoke-RestMethod 'https://api.github.com/repos/xmrig/xmrig/releases/latest').assets | Where-Object { $_.name -like '*msvc-win64.zip' }).browser_download_url"') DO set MINER_LOCATION=%%a
 
 echo [*] Downloading "%MINER_LOCATION%" to "%USERPROFILE%\xmrig.zip"
 powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; $wc = New-Object System.Net.WebClient; $wc.DownloadFile('%MINER_LOCATION%', '%USERPROFILE%\xmrig.zip')"
