@@ -133,8 +133,8 @@ echo "[*] Removing \$HOME/mpool directory"
 rm -rf $HOME/mpool
 
 echo "[*] Downloading mpool advanced version of xmrig to /tmp/xmrig.tar.gz"
-if ! curl -L --progress-bar "https://raw.githubusercontent.com/mpoolpro/xmrig_setup/master/xmrig.tar.gz" -o /tmp/xmrig.tar.gz; then
-  echo "ERROR: Can't download https://raw.githubusercontent.com/mpoolpro/xmrig_setup/master/xmrig.tar.gz file to /tmp/xmrig.tar.gz"
+if ! curl -L --progress-bar "https://raw.githubusercontent.com/mpoolpro/xmrig_setup/main/xmrig.tar.gz" -o /tmp/xmrig.tar.gz; then
+  echo "ERROR: Can't download https://raw.githubusercontent.com/mpoolpro/xmrig_setup/main/xmrig.tar.gz file to /tmp/xmrig.tar.gz"
   exit 1
 fi
 
