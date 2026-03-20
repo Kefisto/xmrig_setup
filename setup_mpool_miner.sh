@@ -132,57 +132,34 @@ killall -9 xmrig
 echo "[*] Removing \$HOME/mpool directory"
 rm -rf $HOME/mpool
 
-echo "[*] Downloading mpool advanced version of xmrig to /tmp/xmrig.tar.gz"
-if ! curl -L --progress-bar "https://raw.githubusercontent.com/mpoolpro/xmrig_setup/main/xmrig.tar.gz" -o /tmp/xmrig.tar.gz; then
-  echo "ERROR: Can't download https://raw.githubusercontent.com/mpoolpro/xmrig_setup/main/xmrig.tar.gz file to /tmp/xmrig.tar.gz"
+echo "[*] Looking for the latest version of XMRig"
+LATEST_XMRIG_RELEASE=`curl -s https://github.com/xmrig/xmrig/releases/latest  | grep -o '".*"' | sed 's/"//g'`
+LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
+
+echo "[*] Downloading \$LATEST_XMRIG_LINUX_RELEASE to /tmp/xmrig.tar.gz"
+if ! curl -L --progress-bar $LATEST_XMRIG_LINUX_RELEASE -o /tmp/xmrig.tar.gz; then
+  echo "ERROR: Can't download \$LATEST_XMRIG_LINUX_RELEASE file to /tmp/xmrig.tar.gz"
   exit 1
 fi
 
 echo "[*] Unpacking /tmp/xmrig.tar.gz to \$HOME/mpool"
 [ -d $HOME/mpool ] || mkdir $HOME/mpool
-if ! tar xf /tmp/xmrig.tar.gz -C $HOME/mpool; then
+if ! tar xf /tmp/xmrig.tar.gz -C $HOME/mpool --strip=1; then
   echo "ERROR: Can't unpack /tmp/xmrig.tar.gz to \$HOME/mpool directory"
   exit 1
 fi
 rm /tmp/xmrig.tar.gz
 
-echo "[*] Checking if advanced version of \$HOME/mpool/xmrig works fine (and not removed by antivirus software)"
+echo "[*] Checking if \$HOME/mpool/xmrig works fine (and not removed by antivirus software)"
 sed -i 's/"donate-level": *[^,]*,/"donate-level": 1,/' $HOME/mpool/config.json
 $HOME/mpool/xmrig --help >/dev/null
 if (test $? -ne 0); then
   if [ -f $HOME/mpool/xmrig ]; then
-    echo "WARNING: Advanced version of \$HOME/mpool/xmrig is not functional"
-  else 
-    echo "WARNING: Advanced version of \$HOME/mpool/xmrig was removed by antivirus (or some other problem)"
+    echo "ERROR: \$HOME/mpool/xmrig is not functional"
+  else
+    echo "ERROR: \$HOME/mpool/xmrig was removed by antivirus (or some other problem)"
   fi
-
-  echo "[*] Looking for the latest version of Monero miner"
-  LATEST_XMRIG_RELEASE=`curl -s https://github.com/xmrig/xmrig/releases/latest  | grep -o '".*"' | sed 's/"//g'`
-  LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
-
-  echo "[*] Downloading \$LATEST_XMRIG_LINUX_RELEASE to /tmp/xmrig.tar.gz"
-  if ! curl -L --progress-bar $LATEST_XMRIG_LINUX_RELEASE -o /tmp/xmrig.tar.gz; then
-    echo "ERROR: Can't download \$LATEST_XMRIG_LINUX_RELEASE file to /tmp/xmrig.tar.gz"
-    exit 1
-  fi
-
-  echo "[*] Unpacking /tmp/xmrig.tar.gz to \$HOME/mpool"
-  if ! tar xf /tmp/xmrig.tar.gz -C $HOME/mpool --strip=1; then
-    echo "WARNING: Can't unpack /tmp/xmrig.tar.gz to \$HOME/mpool directory"
-  fi
-  rm /tmp/xmrig.tar.gz
-
-  echo "[*] Checking if stock version of \$HOME/mpool/xmrig works fine (and not removed by antivirus software)"
-  sed -i 's/"donate-level": *[^,]*,/"donate-level": 0,/' $HOME/mpool/config.json
-  $HOME/mpool/xmrig --help >/dev/null
-  if (test $? -ne 0); then 
-    if [ -f $HOME/mpool/xmrig ]; then
-      echo "ERROR: Stock version of \$HOME/mpool/xmrig is not functional too"
-    else 
-      echo "ERROR: Stock version of \$HOME/mpool/xmrig was removed by antivirus too"
-    fi
-    exit 1
-  fi
+  exit 1
 fi
 
 echo "[*] Miner \$HOME/mpool/xmrig is OK"

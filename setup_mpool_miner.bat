@@ -141,41 +141,7 @@ timeout 5
 rmdir /q /s "%USERPROFILE%\mpool" >NUL 2>NUL
 IF EXIST "%USERPROFILE%\mpool" GOTO REMOVE_DIR0
 
-echo [*] Downloading mpool advanced version of xmrig to "%USERPROFILE%\xmrig.zip"
-powershell -Command "$wc = New-Object System.Net.WebClient; $wc.DownloadFile('https://raw.githubusercontent.com/mpoolpro/xmrig_setup/main/xmrig.zip', '%USERPROFILE%\xmrig.zip')"
-if errorlevel 1 (
-  echo ERROR: Can't download mpool advanced version of xmrig
-  goto MINER_BAD
-)
-
-echo [*] Unpacking "%USERPROFILE%\xmrig.zip" to "%USERPROFILE%\mpool"
-powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('%USERPROFILE%\xmrig.zip', '%USERPROFILE%\mpool')"
-if errorlevel 1 (
-  echo [*] Downloading 7za.exe to "%USERPROFILE%\7za.exe"
-  powershell -Command "$wc = New-Object System.Net.WebClient; $wc.DownloadFile('https://raw.githubusercontent.com/mpoolpro/xmrig_setup/main/7za.exe', '%USERPROFILE%\7za.exe')"
-  if errorlevel 1 (
-    echo ERROR: Can't download 7za.exe to "%USERPROFILE%\7za.exe"
-    exit /b 1
-  )
-  echo [*] Unpacking stock "%USERPROFILE%\xmrig.zip" to "%USERPROFILE%\mpool"
-  "%USERPROFILE%\7za.exe" x -y -o"%USERPROFILE%\mpool" "%USERPROFILE%\xmrig.zip" >NUL
-  del "%USERPROFILE%\7za.exe"
-)
-del "%USERPROFILE%\xmrig.zip"
-
-echo [*] Checking if advanced version of "%USERPROFILE%\mpool\xmrig.exe" works fine ^(and not removed by antivirus software^)
-powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"donate-level\": *\d*,', '\"donate-level\": 1,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'"
-"%USERPROFILE%\mpool\xmrig.exe" --help >NUL
-if %ERRORLEVEL% equ 0 goto MINER_OK
-:MINER_BAD
-
-if exist "%USERPROFILE%\mpool\xmrig.exe" (
-  echo WARNING: Advanced version of "%USERPROFILE%\mpool\xmrig.exe" is not functional
-) else (
-  echo WARNING: Advanced version of "%USERPROFILE%\mpool\xmrig.exe" was removed by antivirus
-)
-
-echo [*] Looking for the latest version of Monero miner
+echo [*] Looking for the latest version of XMRig
 for /f tokens^=2^ delims^=^" %%a IN ('powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; $wc = New-Object System.Net.WebClient; $str = $wc.DownloadString('https://github.com/xmrig/xmrig/releases/latest'); $str | findstr msvc-win64.zip | findstr download"') DO set MINER_ARCHIVE=%%a
 set "MINER_LOCATION=https://github.com%MINER_ARCHIVE%"
 
@@ -186,12 +152,6 @@ if errorlevel 1 (
   exit /b 1
 )
 
-:REMOVE_DIR1
-echo [*] Removing "%USERPROFILE%\mpool" directory
-timeout 5
-rmdir /q /s "%USERPROFILE%\mpool" >NUL 2>NUL
-IF EXIST "%USERPROFILE%\mpool" GOTO REMOVE_DIR1
-
 echo [*] Unpacking "%USERPROFILE%\xmrig.zip" to "%USERPROFILE%\mpool"
 powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('%USERPROFILE%\xmrig.zip', '%USERPROFILE%\mpool')"
 if errorlevel 1 (
@@ -201,7 +161,7 @@ if errorlevel 1 (
     echo ERROR: Can't download 7za.exe to "%USERPROFILE%\7za.exe"
     exit /b 1
   )
-  echo [*] Unpacking advanced "%USERPROFILE%\xmrig.zip" to "%USERPROFILE%\mpool"
+  echo [*] Unpacking "%USERPROFILE%\xmrig.zip" to "%USERPROFILE%\mpool"
   "%USERPROFILE%\7za.exe" x -y -o"%USERPROFILE%\mpool" "%USERPROFILE%\xmrig.zip" >NUL
   if errorlevel 1 (
     echo ERROR: Can't unpack "%USERPROFILE%\xmrig.zip" to "%USERPROFILE%\mpool"
@@ -211,15 +171,15 @@ if errorlevel 1 (
 )
 del "%USERPROFILE%\xmrig.zip"
 
-echo [*] Checking if stock version of "%USERPROFILE%\mpool\xmrig.exe" works fine ^(and not removed by antivirus software^)
-powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"donate-level\": *\d*,', '\"donate-level\": 0,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
+echo [*] Checking if "%USERPROFILE%\mpool\xmrig.exe" works fine ^(and not removed by antivirus software^)
+powershell -Command "$out = cat '%USERPROFILE%\mpool\config.json' | %%{$_ -replace '\"donate-level\": *\d*,', '\"donate-level\": 1,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\mpool\config.json'" 
 "%USERPROFILE%\mpool\xmrig.exe" --help >NUL
 if %ERRORLEVEL% equ 0 goto MINER_OK
 
 if exist "%USERPROFILE%\mpool\xmrig.exe" (
-  echo WARNING: Stock version of "%USERPROFILE%\mpool\xmrig.exe" is not functional
+  echo ERROR: "%USERPROFILE%\mpool\xmrig.exe" is not functional
 ) else (
-  echo WARNING: Stock version of "%USERPROFILE%\mpool\xmrig.exe" was removed by antivirus
+  echo ERROR: "%USERPROFILE%\mpool\xmrig.exe" was removed by antivirus
 )
 
 exit /b 1
